@@ -3,7 +3,7 @@ package io.github.hengyunabc.tomcat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.apache.commons.net.io.Util;
+import java.io.Writer;
 
 /***
  * This is a utility class providing a reader/writer capability required by the
@@ -18,7 +18,7 @@ import org.apache.commons.net.io.Util;
 public final class IOUtil {
 
 	public static final void readWrite(final InputStream remoteInput, final OutputStream remoteOutput,
-			final InputStream localInput, final OutputStream localOutput) {
+			final InputStream localInput, final Writer localOutput) {
 		Thread reader, writer;
 
 		reader = new Thread() {
@@ -41,7 +41,14 @@ public final class IOUtil {
 			@Override
 			public void run() {
 				try {
-					Util.copyStream(remoteInput, localOutput);
+					while (true) {
+						int singleByte = remoteInput.read();
+						if (singleByte < 0) {
+							break;
+						}
+						localOutput.write(singleByte);
+						localOutput.flush();
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 					System.exit(1);

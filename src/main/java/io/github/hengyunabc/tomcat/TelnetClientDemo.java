@@ -34,28 +34,19 @@ public class TelnetClientDemo {
 
 		final TelnetClient telnet = new TelnetClient();
 		telnet.setConnectTimeout(5000);
+
+		// hack for windows
+		int width = terminal.getWidth();
+		if (OSUtils.isWindowsOS()) {
+			width--;
+		}
 		// send init terminal size
-		TelnetOptionHandler sizeOpt = new WindowSizeOptionHandler(terminal.getWidth(), terminal.getHeight(), true, true,
-				false, false);
+		TelnetOptionHandler sizeOpt = new WindowSizeOptionHandler(width, terminal.getHeight(), true, true, false,
+				false);
 		try {
 			telnet.addOptionHandler(sizeOpt);
 		} catch (InvalidTelnetOptionException e) {
 			// ignore
-		}
-
-		String ip = "127.0.0.1";
-		int port = 3658;
-		if (args.length == 1) {
-			ip = args[0];
-		} else if (args.length >= 2) {
-			ip = args[0];
-			port = Integer.parseInt(args[1]);
-		}
-		try {
-			telnet.connect(ip, port);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
 		}
 
 		// ctrl + c event callback
@@ -81,7 +72,22 @@ public class TelnetClientDemo {
 			}
 		});
 
-		IOUtil.readWrite(telnet.getInputStream(), telnet.getOutputStream(), System.in, System.out);
+		String ip = "127.0.0.1";
+		int port = 3658;
+		if (args.length == 1) {
+			ip = args[0];
+		} else if (args.length >= 2) {
+			ip = args[0];
+			port = Integer.parseInt(args[1]);
+		}
+		try {
+			telnet.connect(ip, port);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		IOUtil.readWrite(telnet.getInputStream(), telnet.getOutputStream(), console.getInput(), console.getOutput());
 	}
 
 }
