@@ -10,6 +10,7 @@ import org.apache.commons.net.telnet.TelnetOptionHandler;
 import org.apache.commons.net.telnet.WindowSizeOptionHandler;
 
 import jline.Terminal;
+import jline.TerminalSupport;
 import jline.UnixTerminal;
 import jline.console.ConsoleReader;
 import jline.console.KeyMap;
@@ -26,6 +27,11 @@ public class TelnetClientDemo {
 		final ConsoleReader console = new ConsoleReader(System.in, System.out);
 		console.setHandleUserInterrupt(true);
 		Terminal terminal = console.getTerminal();
+
+		if(terminal instanceof TerminalSupport) {
+			((TerminalSupport)terminal).disableInterruptCharacter();
+		}
+
 		// support catch ctrl+c event
 		terminal.disableInterruptCharacter();
 		if (terminal instanceof UnixTerminal) {
@@ -87,7 +93,7 @@ public class TelnetClientDemo {
 			System.exit(1);
 		}
 
-		IOUtil.readWrite(telnet.getInputStream(), telnet.getOutputStream(), console.getInput(), console.getOutput());
+		IOUtil.readWrite(telnet.getInputStream(), telnet.getOutputStream(), System.in, console.getOutput());
 	}
 
 }
